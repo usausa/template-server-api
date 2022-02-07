@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E0A677D6-A180-4A0B-A9BC-1681132D2505}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		Analyzers.ruleset = Analyzers.ruleset
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+		NuGet.Config = NuGet.Config
+		README.md = README.md
+		Template.sln.DotSettings = Template.sln.DotSettings
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{0054F69F-70A7-491E-A9F8-955BA96FA67E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{15C6D32E-7C5B-45B7-96F8-CE334994F9FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.Web", "Template.Web\Template.Web.csproj", "{B0BC4363-3D15-446C-8AB2-056BAE971FB7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B0BC4363-3D15-446C-8AB2-056BAE971FB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0BC4363-3D15-446C-8AB2-056BAE971FB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0BC4363-3D15-446C-8AB2-056BAE971FB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0BC4363-3D15-446C-8AB2-056BAE971FB7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B0BC4363-3D15-446C-8AB2-056BAE971FB7} = {0054F69F-70A7-491E-A9F8-955BA96FA67E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CD0C005B-A9D9-4AB9-AD4E-25BE9FD0E822}
+	EndGlobalSection
+EndGlobal
