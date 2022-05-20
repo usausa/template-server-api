@@ -9,7 +9,7 @@ public sealed class ApiExceptionFilterAttribute : ExceptionFilterAttribute
         context.Result = new ObjectResult(new
         {
             Code = 500,
-            Message = "A server error occurred.",
+            Message = "A server error occurred."
         })
         {
             StatusCode = 500
