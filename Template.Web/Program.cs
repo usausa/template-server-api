@@ -1,9 +1,22 @@
+using System.Text.Encodings.Web;
+using System.Text.Json.Serialization;
+using System.Text.Unicode;
+
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting.WindowsServices;
 
 using Serilog;
 
+using Smart.AspNetCore;
+using Smart.AspNetCore.ApplicationModels;
+
+using Template.Web.Infrastructure.Json;
+
 #pragma warning disable CA1812
+
+//--------------------------------------------------------------------------------
+// Configure builder
+//--------------------------------------------------------------------------------
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 
 // Configure builder
@@ -14,7 +27,9 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 });
 
 // Service
-builder.Host.UseWindowsService();
+builder.Host
+    .UseWindowsService()
+    .UseSystemd();
 
 // Log
 builder.Host
@@ -35,18 +50,44 @@ builder.Services.Configure<KestrelServerOptions>(options =>
     options.Limits.MaxRequestBodySize = int.MaxValue;
 });
 
+// Route
 builder.Services.Configure<RouteOptions>(options =>
 {
     options.AppendTrailingSlash = true;
 });
 
-builder.Services.AddControllers();
+// Filter
+builder.Services.AddTimeLogging(options =>
+{
+    options.Threshold = 5000;
+});
+
+// API
+builder.Services
+    .AddControllers(options =>
+    {
+        options.Filters.AddTimeLogging();
+        options.Conventions.Add(new LowercaseControllerModelConvention());
+    })
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
+        options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+// Swagger
 builder.Services.AddSwaggerGen();
 
-// Configure
+//--------------------------------------------------------------------------------
+// Configure the HTTP request pipeline
+//--------------------------------------------------------------------------------
 var app = builder.Build();
+
+// HTTPS redirection
+app.UseHttpsRedirection();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -55,10 +96,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
+// Authentication
 app.UseAuthorization();
+
+// API
 app.MapControllers();
 app.MapGet("/", async context => await context.Response.WriteAsync("API Service"));
 
+// Run
 app.Run();
