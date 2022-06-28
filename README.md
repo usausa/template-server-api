@@ -1,1 +1,1 @@
-# template-server-api
+# Template project for ASP.NET Core api server
