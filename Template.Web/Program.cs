@@ -10,8 +10,6 @@ using Serilog;
 using Smart.AspNetCore;
 using Smart.AspNetCore.ApplicationModels;
 
-using Template.Web.Infrastructure.Json;
-
 #pragma warning disable CA1812
 
 //--------------------------------------------------------------------------------
@@ -73,7 +71,7 @@ builder.Services
     {
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
-        options.JsonSerializerOptions.Converters.Add(new DateTimeConverter());
+        options.JsonSerializerOptions.Converters.Add(new Template.Web.Infrastructure.Json.DateTimeConverter());
     });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
