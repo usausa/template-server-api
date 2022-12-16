@@ -10,7 +10,7 @@ using Serilog;
 using Smart.AspNetCore;
 using Smart.AspNetCore.ApplicationModels;
 
-#pragma warning disable CA1812
+#pragma warning disable CA1852
 
 //--------------------------------------------------------------------------------
 // Configure builder
