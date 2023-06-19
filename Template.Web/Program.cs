@@ -15,8 +15,6 @@ using Smart.AspNetCore.ApplicationModels;
 //--------------------------------------------------------------------------------
 // Configure builder
 //--------------------------------------------------------------------------------
-Directory.SetCurrentDirectory(AppContext.BaseDirectory);
-
 // Configure builder
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
