@@ -15,7 +15,6 @@ using Smart.AspNetCore.ApplicationModels;
 //--------------------------------------------------------------------------------
 // Configure builder
 //--------------------------------------------------------------------------------
-// Configure builder
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
