@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <CodeAnalysisRuleSet>..\Analyzers.ruleset</CodeAnalysisRuleSet>
+    <UserSecretsId>a2790db8-cee4-4551-8228-b91825985562</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
