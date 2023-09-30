@@ -12,8 +12,8 @@
     <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="Usa.Smart.AspNetCore" Version="2.2.0" />
-    <PackageReference Include="Usa.Smart.Core" Version="2.2.0" />
+    <PackageReference Include="Usa.Smart.AspNetCore" Version="2.3.0" />
+    <PackageReference Include="Usa.Smart.Core" Version="2.2.1" />
   </ItemGroup>
 
   <ItemGroup>
