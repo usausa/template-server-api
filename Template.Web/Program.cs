@@ -101,15 +101,6 @@ builder.Services.AddVersionedApiExplorer(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
-// Profiler
-if (!builder.Environment.IsProduction())
-{
-    builder.Services.AddMiniProfiler(options =>
-    {
-        options.RouteBasePath = "/profiler";
-    });
-}
-
 // Rate limit
 builder.Services.AddRateLimiter(builder.Configuration.GetSection("RateLimit").Get<RateLimitSetting>()!);
 
@@ -118,14 +109,17 @@ builder.Services
     .AddHealthChecks()
     .AddCheck<CustomHealthCheck>("custom_check", tags: new[] { "app" });
 
-// Swagger
-builder.Services.AddSwaggerGen();
-
-// Profiler
-builder.Services.AddMiniProfiler(options =>
+if (!builder.Environment.IsProduction())
 {
-    options.RouteBasePath = "/profiler";
-});
+    // Swagger
+    builder.Services.AddSwaggerGen();
+
+    // Profiler
+    builder.Services.AddMiniProfiler(options =>
+    {
+        options.RouteBasePath = "/profiler";
+    });
+}
 
 //--------------------------------------------------------------------------------
 // Configure the HTTP request pipeline
@@ -140,6 +134,9 @@ if (!app.Environment.IsProduction())
         options.IncludeQueryInRequestPath = true;
     });
 }
+
+// Forwarded headers
+app.UseForwardedHeaders();
 
 // HTTPS redirection
 app.UseHttpsRedirection();
