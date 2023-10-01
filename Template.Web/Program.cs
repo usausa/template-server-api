@@ -3,16 +3,26 @@ using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting.WindowsServices;
+using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
+
+using Prometheus;
 
 using Serilog;
 
 using Smart.AspNetCore;
 using Smart.AspNetCore.ApplicationModels;
 
+using Swashbuckle.AspNetCore.SwaggerGen;
+
 using Template.Web.Application.HealthChecks;
+using Template.Web.Application.RateLimiting;
+using Template.Web.Settings;
+
+using TMN.TerminalEmulator.Service.Application.Swagger;
 
 #pragma warning disable CA1852
 
@@ -48,6 +58,10 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 // Feature management
 builder.Services.AddFeatureManagement();
 
+// Settings
+var serverSetting = builder.Configuration.GetSection("Server").Get<ServerSetting>()!;
+builder.Services.AddSingleton(serverSetting);
+
 // Route
 builder.Services.Configure<RouteOptions>(options =>
 {
@@ -57,7 +71,7 @@ builder.Services.Configure<RouteOptions>(options =>
 // Filter
 builder.Services.AddTimeLogging(options =>
 {
-    options.Threshold = 5000;
+    options.Threshold = serverSetting.LongTimeThreshold;
 });
 
 // API
@@ -73,16 +87,46 @@ builder.Services
         options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
         options.JsonSerializerOptions.Converters.Add(new Template.Web.Infrastructure.Json.DateTimeConverter());
     });
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 
-// Swagger
-builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+
+builder.Services.AddApiVersioning(options =>
+{
+    options.ReportApiVersions = true;
+});
+builder.Services.AddVersionedApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
+// Profiler
+if (!builder.Environment.IsProduction())
+{
+    builder.Services.AddMiniProfiler(options =>
+    {
+        options.RouteBasePath = "/profiler";
+    });
+}
+
+// Rate limit
+builder.Services.AddRateLimiter(builder.Configuration.GetSection("RateLimit").Get<RateLimitSetting>()!);
 
 // Health
 builder.Services
     .AddHealthChecks()
     .AddCheck<CustomHealthCheck>("custom_check", tags: new[] { "app" });
+
+// Swagger
+builder.Services.AddSwaggerGen();
+
+// Profiler
+builder.Services.AddMiniProfiler(options =>
+{
+    options.RouteBasePath = "/profiler";
+});
 
 //--------------------------------------------------------------------------------
 // Configure the HTTP request pipeline
@@ -90,7 +134,7 @@ builder.Services
 var app = builder.Build();
 
 // Serilog
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsProduction())
 {
     app.UseSerilogRequestLogging(options =>
     {
@@ -107,11 +151,26 @@ app.MapHealthChecks("/health", new HealthCheckOptions
     ResponseWriter = HealthCheckWriter.WriteResponse
 });
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+// Metrics
+app.UseHttpMetrics();
+
+if (!app.Environment.IsProduction())
 {
+    // Profiler
+    app.UseMiniProfiler();
+
+    // Swagger
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+#pragma warning disable S3267
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+        }
+#pragma warning restore S3267
+    });
 }
 
 // Authentication
@@ -120,6 +179,12 @@ app.UseAuthorization();
 // API
 app.MapControllers();
 app.MapGet("/", async context => await context.Response.WriteAsync("API Service"));
+
+// Metrics
+app.MapMetrics();
+
+// Rate limit
+app.UseRateLimiter();
 
 // Run
 app.Run();
