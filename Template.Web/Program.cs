@@ -2,13 +2,17 @@ using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting.WindowsServices;
+using Microsoft.FeatureManagement;
 
 using Serilog;
 
 using Smart.AspNetCore;
 using Smart.AspNetCore.ApplicationModels;
+
+using Template.Web.Application.HealthChecks;
 
 #pragma warning disable CA1852
 
@@ -28,11 +32,10 @@ builder.Host
 
 // Log
 builder.Logging.ClearProviders();
-builder.Host
-    .UseSerilog((hostingContext, loggerConfiguration) =>
-    {
-        loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration);
-    });
+builder.Services.AddSerilog(option =>
+{
+    option.ReadFrom.Configuration(builder.Configuration);
+});
 
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
@@ -41,6 +44,9 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.Limits.MaxRequestBodySize = int.MaxValue;
 });
+
+// Feature management
+builder.Services.AddFeatureManagement();
 
 // Route
 builder.Services.Configure<RouteOptions>(options =>
@@ -73,13 +79,33 @@ builder.Services.AddEndpointsApiExplorer();
 // Swagger
 builder.Services.AddSwaggerGen();
 
+// Health
+builder.Services
+    .AddHealthChecks()
+    .AddCheck<CustomHealthCheck>("custom_check", tags: new[] { "app" });
+
 //--------------------------------------------------------------------------------
 // Configure the HTTP request pipeline
 //--------------------------------------------------------------------------------
 var app = builder.Build();
 
+// Serilog
+if (app.Environment.IsDevelopment())
+{
+    app.UseSerilogRequestLogging(options =>
+    {
+        options.IncludeQueryInRequestPath = true;
+    });
+}
+
 // HTTPS redirection
 app.UseHttpsRedirection();
+
+// Health
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = HealthCheckWriter.WriteResponse
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
