@@ -1,4 +1,4 @@
-namespace TMN.TerminalEmulator.Service.Application.Swagger;
+namespace Template.Web.Application.Swagger;
 
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;

@@ -20,9 +20,8 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 using Template.Web.Application.HealthChecks;
 using Template.Web.Application.RateLimiting;
+using Template.Web.Application.Swagger;
 using Template.Web.Settings;
-
-using TMN.TerminalEmulator.Service.Application.Swagger;
 
 #pragma warning disable CA1852
 
