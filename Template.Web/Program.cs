@@ -109,6 +109,7 @@ builder.Services
     .AddHealthChecks()
     .AddCheck<CustomHealthCheck>("custom_check", tags: new[] { "app" });
 
+// Develop
 if (!builder.Environment.IsProduction())
 {
     // Swagger
@@ -138,6 +139,12 @@ if (!app.Environment.IsProduction())
 // Forwarded headers
 app.UseForwardedHeaders();
 
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+
 // HTTPS redirection
 app.UseHttpsRedirection();
 
@@ -150,6 +157,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 // Metrics
 app.UseHttpMetrics();
 
+// Develop
 if (!app.Environment.IsProduction())
 {
     // Profiler
