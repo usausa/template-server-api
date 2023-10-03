@@ -18,6 +18,7 @@ public class LimitController : ControllerBase
     }
 
     [HttpPost]
+#pragma warning disable CA1848
     public async ValueTask<IActionResult> Daily()
     {
         log.LogInformation("Request start.");
@@ -28,4 +29,5 @@ public class LimitController : ControllerBase
 
         return Ok();
     }
+#pragma warning restore CA1848
 }
