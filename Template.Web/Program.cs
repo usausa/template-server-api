@@ -1,8 +1,12 @@
+using System.IO.Compression;
+using System.Net.Mime;
 using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Options;
@@ -18,7 +22,6 @@ using Smart.AspNetCore.ApplicationModels;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 using Template.Web.Application.HealthChecks;
-using Template.Web.Application.RateLimiting;
 using Template.Web.Application.Swagger;
 using Template.Web.Settings;
 
@@ -43,6 +46,13 @@ builder.Logging.ClearProviders();
 builder.Services.AddSerilog(option =>
 {
     option.ReadFrom.Configuration(builder.Configuration);
+});
+builder.Services.AddHttpLogging(options =>
+{
+    //options.LoggingFields = HttpLoggingFields.All | HttpLoggingFields.RequestQuery;
+    options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
+                            HttpLoggingFields.RequestQuery |
+                            HttpLoggingFields.ResponsePropertiesAndHeaders;
 });
 
 // Add services to the container.
@@ -110,7 +120,32 @@ if (!builder.Environment.IsProduction())
 }
 
 // Rate limit
-builder.Services.AddRateLimiter(builder.Configuration.GetSection("RateLimit").Get<RateLimitSetting>()!);
+builder.Services.AddRateLimiter(_ =>
+{
+});
+
+// Error handler
+builder.Services.AddProblemDetails(options =>
+{
+    options.CustomizeProblemDetails = context =>
+    {
+        context.ProblemDetails.Extensions.Add("nodeId", Environment.MachineName);
+    };
+});
+
+// Compress
+builder.Services.AddRequestDecompression();
+builder.Services.AddResponseCompression(options =>
+{
+    // Default false (for CRIME and BREACH attacks)
+    options.EnableForHttps = true;
+    options.Providers.Add<GzipCompressionProvider>();
+    options.MimeTypes = new[] { MediaTypeNames.Application.Json };
+});
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = CompressionLevel.Fastest;
+});
 
 // Health
 builder.Services
@@ -131,35 +166,42 @@ if (!builder.Environment.IsProduction())
 //--------------------------------------------------------------------------------
 var app = builder.Build();
 
-// Serilog
+// Log
 if (!app.Environment.IsProduction())
 {
+    // Serilog
     app.UseSerilogRequestLogging(options =>
     {
         options.IncludeQueryInRequestPath = true;
     });
+
+    // HTTP log
+    app.UseHttpLogging();
 }
 
 // Forwarded headers
 app.UseForwardedHeaders();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHsts();
-}
+// Error handler
+app.UseExceptionHandler();
+
+// HSTS
+//if (!app.Environment.IsDevelopment())
+//{
+//    app.UseHsts();
+//}
 
 // HTTPS redirection
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
-// Health
-app.MapHealthChecks("/health", new HealthCheckOptions
-{
-    ResponseWriter = HealthCheckWriter.WriteResponse
-});
+// Routing
+app.UseRouting();
 
-// Metrics
-app.UseHttpMetrics();
+// Rate limit
+app.UseRateLimiter();
+
+// CORS
+//app.UseCors();
 
 // Develop
 if (!app.Environment.IsProduction())
@@ -178,18 +220,32 @@ if (!app.Environment.IsProduction())
     });
 }
 
+// Health
+app.UseHealthChecks("/health");
+
+// Metrics
+app.UseHttpMetrics();
+
 // Authentication
 app.UseAuthorization();
+
+// Compression
+app.UseResponseCompression();
+//app.UseRequestDecompression();
+//app.UseResponseCaching();
 
 // API
 app.MapControllers();
 app.MapGet("/", async context => await context.Response.WriteAsync("API Service"));
 
+// Health
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = HealthCheckWriter.WriteResponse
+});
+
 // Metrics
 app.MapMetrics();
-
-// Rate limit
-app.UseRateLimiter();
 
 // Run
 app.Run();
