@@ -6,6 +6,7 @@ using System.Text.Unicode;
 
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting.WindowsServices;
@@ -47,34 +48,54 @@ builder.Services.AddSerilog(option =>
 {
     option.ReadFrom.Configuration(builder.Configuration);
 });
-builder.Services.AddHttpLogging(options =>
+
+if (builder.Environment.IsDevelopment())
 {
-    //options.LoggingFields = HttpLoggingFields.All | HttpLoggingFields.RequestQuery;
-    options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
-                            HttpLoggingFields.RequestQuery |
-                            HttpLoggingFields.ResponsePropertiesAndHeaders;
-});
+    builder.Services.AddHttpLogging(options =>
+    {
+        //options.LoggingFields = HttpLoggingFields.All | HttpLoggingFields.RequestQuery;
+        options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
+                                HttpLoggingFields.RequestQuery |
+                                HttpLoggingFields.ResponsePropertiesAndHeaders;
+    });
+}
 
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.Configure<KestrelServerOptions>(options =>
-{
-    options.Limits.MaxRequestBodySize = int.MaxValue;
-});
+// Settings
+var serverSetting = builder.Configuration.GetSection("Server").Get<ServerSetting>()!;
+builder.Services.AddSingleton(serverSetting);
 
 // Feature management
 builder.Services.AddFeatureManagement();
 
-// Settings
-var serverSetting = builder.Configuration.GetSection("Server").Get<ServerSetting>()!;
-builder.Services.AddSingleton(serverSetting);
+// Size limit
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = Int32.MaxValue;
+});
 
 // Route
 builder.Services.Configure<RouteOptions>(options =>
 {
     options.AppendTrailingSlash = true;
 });
+
+// XForward
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+    // Do not restrict to local network/proxy
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+// CORS
+//builder.Services.Configure<CorsOptions>(options =>
+//{
+//});
 
 // Filter
 builder.Services.AddTimeLogging(options =>
@@ -86,8 +107,8 @@ builder.Services.AddTimeLogging(options =>
 builder.Services
     .AddControllers(options =>
     {
-        options.Filters.AddTimeLogging();
         options.Conventions.Add(new LowercaseControllerModelConvention());
+        options.Filters.AddTimeLogging();
     })
     .AddJsonOptions(options =>
     {
@@ -167,7 +188,7 @@ if (!builder.Environment.IsProduction())
 var app = builder.Build();
 
 // Log
-if (!app.Environment.IsProduction())
+if (app.Environment.IsDevelopment())
 {
     // Serilog
     app.UseSerilogRequestLogging(options =>
