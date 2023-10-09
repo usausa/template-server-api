@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Options;
@@ -89,17 +88,26 @@ builder.Services
 
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+builder.Services
+    .AddApiVersioning(options =>
+    {
+        options.DefaultApiVersion = new ApiVersion(1.0);
+        options.ReportApiVersions = true;
+        options.ApiVersionReader = new UrlSegmentApiVersionReader();
+    })
+    .AddApiExplorer(options =>
+    {
+        options.SubstituteApiVersionInUrl = true;
+        options.GroupNameFormat = "'v'VVV";
+        options.AssumeDefaultVersionWhenUnspecified = true;
+    });
 
-builder.Services.AddApiVersioning(options =>
+// Swagger
+if (!builder.Environment.IsProduction())
 {
-    options.ReportApiVersions = true;
-});
-builder.Services.AddVersionedApiExplorer(options =>
-{
-    options.GroupNameFormat = "'v'VVV";
-    options.SubstituteApiVersionInUrl = true;
-});
+    builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+    builder.Services.AddSwaggerGen();
+}
 
 // Rate limit
 builder.Services.AddRateLimiter(builder.Configuration.GetSection("RateLimit").Get<RateLimitSetting>()!);
@@ -109,13 +117,9 @@ builder.Services
     .AddHealthChecks()
     .AddCheck<CustomHealthCheck>("custom_check", tags: new[] { "app" });
 
-// Develop
+// Profiler
 if (!builder.Environment.IsProduction())
 {
-    // Swagger
-    builder.Services.AddSwaggerGen();
-
-    // Profiler
     builder.Services.AddMiniProfiler(options =>
     {
         options.RouteBasePath = "/profiler";
@@ -167,13 +171,10 @@ if (!app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
-#pragma warning disable S3267
-        foreach (var description in provider.ApiVersionDescriptions)
+        foreach (var description in app.DescribeApiVersions())
         {
-            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName);
         }
-#pragma warning restore S3267
     });
 }
 

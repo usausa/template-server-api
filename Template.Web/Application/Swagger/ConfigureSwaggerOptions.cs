@@ -1,13 +1,13 @@
 namespace Template.Web.Application.Swagger;
 
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Asp.Versioning.ApiExplorer;
+
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-[ExcludeFromCodeCoverage]
-public sealed class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
+public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
 {
     private readonly IApiVersionDescriptionProvider provider;
 
@@ -34,7 +34,7 @@ public sealed class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOption
 
         if (description.IsDeprecated)
         {
-            info.Description += " (Deprecated)";
+            info.Description += " Deprecated.";
         }
 
         return info;

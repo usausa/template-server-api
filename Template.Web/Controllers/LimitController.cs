@@ -1,12 +1,8 @@
 namespace Template.Web.Controllers;
 
-using Microsoft.AspNetCore.RateLimiting;
-
-using Template.Web.Application;
-
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
-[ApiVersion("1.0")]
+[ApiVersion(1.0)]
 [EnableRateLimiting(LimitPolicy.Default)]
 public class LimitController : ControllerBase
 {

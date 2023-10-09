@@ -19,13 +19,18 @@ global using System.Text;
 global using System.Threading;
 global using System.Threading.Tasks;
 
+global using Asp.Versioning;
+
 global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.RateLimiting;
 
 global using Microsoft.Extensions.Logging;
 
 global using Smart;
 global using Smart.Collections.Generic;
 global using Smart.Text;
+
+global using Template.Web.Application;
