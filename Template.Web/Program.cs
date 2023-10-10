@@ -241,9 +241,6 @@ if (!app.Environment.IsProduction())
     });
 }
 
-// Health
-app.UseHealthChecks("/health");
-
 // Metrics
 app.UseHttpMetrics();
 
