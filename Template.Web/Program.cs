@@ -51,7 +51,7 @@ builder.Services.AddSerilog(option =>
 
 if (builder.Environment.IsDevelopment())
 {
-    builder.Services.AddHttpLogging(options =>
+    builder.Services.AddHttpLogging(static options =>
     {
         //options.LoggingFields = HttpLoggingFields.All | HttpLoggingFields.RequestQuery;
         options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
@@ -71,19 +71,19 @@ builder.Services.AddSingleton(serverSetting);
 builder.Services.AddFeatureManagement();
 
 // Size limit
-builder.Services.Configure<KestrelServerOptions>(options =>
+builder.Services.Configure<KestrelServerOptions>(static options =>
 {
     options.Limits.MaxRequestBodySize = Int32.MaxValue;
 });
 
 // Route
-builder.Services.Configure<RouteOptions>(options =>
+builder.Services.Configure<RouteOptions>(static options =>
 {
     options.AppendTrailingSlash = true;
 });
 
 // XForward
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
+builder.Services.Configure<ForwardedHeadersOptions>(static options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
 
@@ -93,7 +93,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 // CORS
-//builder.Services.Configure<CorsOptions>(options =>
+//builder.Services.Configure<CorsOptions>(static options =>
 //{
 //});
 
@@ -105,12 +105,12 @@ builder.Services.AddTimeLogging(options =>
 
 // API
 builder.Services
-    .AddControllers(options =>
+    .AddControllers(static options =>
     {
         options.Conventions.Add(new LowercaseControllerModelConvention());
         options.Filters.AddTimeLogging();
     })
-    .AddJsonOptions(options =>
+    .AddJsonOptions(static options =>
     {
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         options.JsonSerializerOptions.Encoder = JavaScriptEncoder.Create(UnicodeRanges.All);
@@ -120,13 +120,13 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services
-    .AddApiVersioning(options =>
+    .AddApiVersioning(static options =>
     {
         options.DefaultApiVersion = new ApiVersion(1.0);
         options.ReportApiVersions = true;
         options.ApiVersionReader = new UrlSegmentApiVersionReader();
     })
-    .AddApiExplorer(options =>
+    .AddApiExplorer(static options =>
     {
         options.SubstituteApiVersionInUrl = true;
         options.GroupNameFormat = "'v'VVV";
@@ -146,7 +146,7 @@ builder.Services.AddRateLimiter(_ =>
 });
 
 // Error handler
-builder.Services.AddProblemDetails(options =>
+builder.Services.AddProblemDetails(static options =>
 {
     options.CustomizeProblemDetails = context =>
     {
@@ -156,14 +156,14 @@ builder.Services.AddProblemDetails(options =>
 
 // Compress
 builder.Services.AddRequestDecompression();
-builder.Services.AddResponseCompression(options =>
+builder.Services.AddResponseCompression(static options =>
 {
     // Default false (for CRIME and BREACH attacks)
     options.EnableForHttps = true;
     options.Providers.Add<GzipCompressionProvider>();
     options.MimeTypes = new[] { MediaTypeNames.Application.Json };
 });
-builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+builder.Services.Configure<GzipCompressionProviderOptions>(static options =>
 {
     options.Level = CompressionLevel.Fastest;
 });
@@ -176,7 +176,7 @@ builder.Services
 // Profiler
 if (!builder.Environment.IsProduction())
 {
-    builder.Services.AddMiniProfiler(options =>
+    builder.Services.AddMiniProfiler(static options =>
     {
         options.RouteBasePath = "/profiler";
     });
@@ -191,7 +191,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     // Serilog
-    app.UseSerilogRequestLogging(options =>
+    app.UseSerilogRequestLogging(static options =>
     {
         options.IncludeQueryInRequestPath = true;
     });
@@ -254,7 +254,7 @@ app.UseResponseCompression();
 
 // API
 app.MapControllers();
-app.MapGet("/", async context => await context.Response.WriteAsync("API Service"));
+app.MapGet("/", static context => context.Response.WriteAsync("API Service"));
 
 // Health
 app.MapHealthChecks("/health", new HealthCheckOptions
