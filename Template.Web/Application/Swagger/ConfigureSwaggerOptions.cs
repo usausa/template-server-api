@@ -7,7 +7,7 @@ using Microsoft.OpenApi.Models;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
+public sealed class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
 {
     private readonly IApiVersionDescriptionProvider provider;
 

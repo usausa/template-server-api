@@ -4,7 +4,7 @@ namespace Template.Web.Controllers;
 [Route("api/v{version:apiVersion}/[controller]/[action]")]
 [ApiVersion(1.0)]
 [EnableRateLimiting(LimitPolicy.Default)]
-public class LimitController : ControllerBase
+public sealed class LimitController : ControllerBase
 {
     private readonly ILogger<LimitController> log;
 

@@ -1,6 +1,6 @@
 namespace Template.Web.Application.RateLimiting;
 
-public class RateLimitSetting
+public sealed class RateLimitSetting
 {
     public int Window { get; set; }
 
