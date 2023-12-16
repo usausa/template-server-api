@@ -268,4 +268,4 @@ app.MapMetrics();
 await app.InitializeAsync();
 
 // Run
-app.Run();
+await app.RunAsync();
