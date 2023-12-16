@@ -23,6 +23,7 @@ using Smart.AspNetCore.ApplicationModels;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 using Template.Web.Application.HealthChecks;
+using Template.Web.Application.RateLimiting;
 using Template.Web.Application.Swagger;
 using Template.Web.Settings;
 
@@ -41,6 +42,10 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 builder.Host
     .UseWindowsService()
     .UseSystemd();
+
+// Configuration
+var serverSetting = builder.Configuration.GetSection("Server").Get<ServerSetting>()!;
+builder.Services.AddSingleton(serverSetting);
 
 // Log
 builder.Logging.ClearProviders();
@@ -62,10 +67,6 @@ if (builder.Environment.IsDevelopment())
 
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
-
-// Settings
-var serverSetting = builder.Configuration.GetSection("Server").Get<ServerSetting>()!;
-builder.Services.AddSingleton(serverSetting);
 
 // Feature management
 builder.Services.AddFeatureManagement();
@@ -141,9 +142,7 @@ if (!builder.Environment.IsProduction())
 }
 
 // Rate limit
-builder.Services.AddRateLimiter(_ =>
-{
-});
+builder.Services.AddRateLimiter(builder.Configuration.GetSection("RateLimit").Get<RateLimitSetting>()!);
 
 // Error handler
 builder.Services.AddProblemDetails(static options =>
@@ -264,6 +263,9 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 
 // Metrics
 app.MapMetrics();
+
+// Initialize
+await app.InitializeAsync();
 
 // Run
 app.Run();
