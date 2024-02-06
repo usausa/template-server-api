@@ -22,6 +22,7 @@ using Smart.AspNetCore.ApplicationModels;
 
 using Swashbuckle.AspNetCore.SwaggerGen;
 
+using Template.Web;
 using Template.Web.Application.HealthChecks;
 using Template.Web.Application.RateLimiting;
 using Template.Web.Application.Swagger;
@@ -185,6 +186,13 @@ if (!builder.Environment.IsProduction())
 // Configure the HTTP request pipeline
 //--------------------------------------------------------------------------------
 var app = builder.Build();
+
+// Startup information
+ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
+app.Logger.InfoServiceStart();
+app.Logger.InfoServiceSettingsEnvironment(typeof(Program).Assembly.GetName().Version, Environment.Version, Environment.CurrentDirectory);
+app.Logger.InfoServiceSettingsGC(GCSettings.IsServerGC, GCSettings.LatencyMode, GCSettings.LargeObjectHeapCompactionMode);
+app.Logger.InfoServiceSettingsThreadPool(workerThreads, completionPortThreads);
 
 // Log
 if (app.Environment.IsDevelopment())
