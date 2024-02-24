@@ -109,7 +109,7 @@ builder.Services.AddTimeLogging(options =>
 builder.Services
     .AddControllers(static options =>
     {
-        options.Conventions.Add(new LowercaseControllerModelConvention());
+        options.Conventions.Add(new KebabControllerModelConvention());
         options.Filters.AddTimeLogging();
     })
     .AddJsonOptions(static options =>
