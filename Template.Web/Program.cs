@@ -213,6 +213,23 @@ app.UseForwardedHeaders();
 // Error handler
 app.UseExceptionHandler();
 
+// Develop
+if (!app.Environment.IsProduction())
+{
+    // Profiler
+    app.UseMiniProfiler();
+
+    // Swagger
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        foreach (var description in app.DescribeApiVersions())
+        {
+            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName);
+        }
+    });
+}
+
 // HSTS
 //if (!app.Environment.IsDevelopment())
 //{
@@ -230,23 +247,6 @@ app.UseRateLimiter();
 
 // CORS
 //app.UseCors();
-
-// Develop
-if (!app.Environment.IsProduction())
-{
-    // Profiler
-    app.UseMiniProfiler();
-
-    // Swagger
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        foreach (var description in app.DescribeApiVersions())
-        {
-            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName);
-        }
-    });
-}
 
 // Metrics
 app.UseHttpMetrics();
