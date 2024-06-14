@@ -161,7 +161,7 @@ builder.Services.AddResponseCompression(static options =>
     // Default false (for CRIME and BREACH attacks)
     options.EnableForHttps = true;
     options.Providers.Add<GzipCompressionProvider>();
-    options.MimeTypes = new[] { MediaTypeNames.Application.Json };
+    options.MimeTypes = [MediaTypeNames.Application.Json];
 });
 builder.Services.Configure<GzipCompressionProviderOptions>(static options =>
 {
@@ -171,7 +171,7 @@ builder.Services.Configure<GzipCompressionProviderOptions>(static options =>
 // Health
 builder.Services
     .AddHealthChecks()
-    .AddCheck<CustomHealthCheck>("custom_check", tags: new[] { "app" });
+    .AddCheck<CustomHealthCheck>("custom_check", tags: ["app"]);
 
 // Profiler
 if (!builder.Environment.IsProduction())
