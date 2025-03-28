@@ -264,10 +264,7 @@ app.MapControllers();
 app.MapGet("/", static context => context.Response.WriteAsync("API Service"));
 
 // Health
-app.MapHealthChecks("/health", new HealthCheckOptions
-{
-    ResponseWriter = HealthCheckWriter.WriteResponse
-});
+app.MapHealthChecks("/health", new HealthCheckOptions { ResponseWriter = HealthCheckWriter.WriteResponse }).DisableHttpMetrics();
 
 // Metrics
 app.MapMetrics();
