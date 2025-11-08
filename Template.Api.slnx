@@ -12,6 +12,6 @@
     <File Path="test.runsettings" />
   </Folder>
   <Folder Name="/Application/">
-    <Project Path="Template.Web/Template.Web.csproj" />
+    <Project Path="Template.Web/Template.Web.csproj" DefaultStartup="true" />
   </Folder>
 </Solution>
