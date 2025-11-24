@@ -4,6 +4,8 @@
   <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
     <Rule Id="SA1005" Action="Hidden" />
     <Rule Id="SA1101" Action="Hidden" />
+    <Rule Id="SA1116" Action="Hidden" />
+    <Rule Id="SA1117" Action="Hidden" />
     <Rule Id="SA1121" Action="Hidden" />
     <Rule Id="SA1201" Action="Hidden" />
     <Rule Id="SA1202" Action="Hidden" />
@@ -33,7 +35,5 @@
     <Rule Id="CA1062" Action="Hidden" />
     <Rule Id="CA1716" Action="Hidden" />
     <Rule Id="CA1724" Action="Hidden" />
-  </Rules>
-  <Rules AnalyzerId="Smart.Analyzers.JapaneseComment" RuleNamespace="Smart.Analyzers.JapaneseComment">
   </Rules>
 </RuleSet>

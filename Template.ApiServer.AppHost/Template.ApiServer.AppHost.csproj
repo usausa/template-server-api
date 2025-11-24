@@ -1,0 +1,14 @@
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <CodeAnalysisRuleSet>..\Analyzers.ruleset</CodeAnalysisRuleSet>
+    <UserSecretsId>61a7b799-0c15-4961-a256-98098694b10f</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Template.ApiServer.Host\Template.ApiServer.Host.csproj" />
+  </ItemGroup>
+
+</Project>

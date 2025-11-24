@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/Aspire/">
+    <Project Path="Template.ApiServer.AppHost/Template.ApiServer.AppHost.csproj" />
+  </Folder>
+  <Folder Name="/Backend/">
+    <Project Path="Template.ApiServer.Core/Template.ApiServer.Core.csproj" Id="b7e9da72-c2e1-4c16-855b-4194fee0a05e" />
+    <Project Path="Template.ApiServer.Host/Template.ApiServer.Host.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="Analyzers.ruleset" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="Template.ApiServer.sln.DotSettings" />
+  </Folder>
+</Solution>
