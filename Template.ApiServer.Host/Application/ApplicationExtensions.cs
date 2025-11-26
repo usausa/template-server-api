@@ -1,26 +1,32 @@
 namespace Template.ApiServer.Host.Application;
 
+using System;
+using System.Runtime.InteropServices;
+using System.Text.Encodings.Web;
+using System.Text.Json.Serialization;
+using System.Text.Unicode;
+
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.FeatureManagement;
+
 using MiniDataProfiler;
 using MiniDataProfiler.Listener.Logging;
 using MiniDataProfiler.Listener.OpenTelemetry;
+
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+
 using Serilog;
+
 using Smart.Data;
 using Smart.Data.Accessor.Extensions.DependencyInjection;
-using System;
-using System.Runtime.InteropServices;
-using System.Text.Encodings.Web;
-using System.Text.Json.Serialization;
-using System.Text.Unicode;
+
 using Template.ApiServer.Host.Application.Telemetry;
 using Template.ApiServer.Host.Settings;
 
