@@ -44,6 +44,7 @@ global using Smart.Text;
 
 // TODO
 global using Template.ApiServer;
+// ReSharper disable MissingBlankLines
 //global using Template.ApiServer.Models;
 //global using Template.ApiServer.Services;
 //global using Template.ApiServer.Host.Application;
