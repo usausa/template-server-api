@@ -25,9 +25,9 @@ builder.ConfigureLogging();
 builder.ConfigureHttp();
 // API
 builder.ConfigureApi();
+// Compress
+builder.ConfigureCompression();
 // TODO
-//// Compress
-//builder.ConfigureCompression();
 //// Swagger
 //builder.ConfigureSwagger();
 
@@ -62,11 +62,11 @@ app.LogStartupInformation();
 //// Buffered response
 //app.UseBufferedResponse();
 
-//// Error handler
-//app.UseExceptionHandler();
+// Error handler
+app.UseErrorHandler();
 
-//// Compression
-//app.UseCompression();
+// Compression
+app.UseCompression();
 
 // End point
 app.MapEndpoints();
